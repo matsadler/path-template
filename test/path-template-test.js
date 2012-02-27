@@ -306,6 +306,12 @@ tc.testMatchWithOptional = function () {
 	assert.deepEqual(result2, {});
 };
 
+tc.testMatchWithSplatFollowedByVariable = function () {
+	var template = PathTemplate.parse("/blog/*date/:id/post"),
+		result = PathTemplate.match(template, "/blog/2012/02/22/1/post");
+	assert.deepEqual(result, {date: ["2012", "02", "22"], id: "1"});
+};
+
 tc.testMatchWithTrailingOptional = function () {
 	var template = PathTemplate.parse("/foo(/bar)"),
 		result1 = PathTemplate.match(template, "/foo"),
