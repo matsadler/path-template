@@ -352,7 +352,106 @@ tc.testTrailingOptionalThenSplat = function () {
 	assert.deepEqual(result4, {baz: []});
 };
 
-// TODO test match failure
+tc.testSimpleMatachFail = function () {
+	var template = PathTemplate.parse("/user/photos/default"),
+		result1 = PathTemplate.match(template, "/"),
+		result2 = PathTemplate.match(template, "/user"),
+		result3 = PathTemplate.match(template, "/foo/bar/baz"),
+		result4 = PathTemplate.match(template, "/user/photos/default/small");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
+	assert.equal(result4, undefined);
+};
+
+tc.testMatchWithVariablesFail = function () {
+	var template = PathTemplate.parse("/blog/:year/:month/posts/:id"),
+		result1 = PathTemplate.match(template, "/blog//posts/"),
+		result2 = PathTemplate.match(template, "/blog/2012/feb/posts/"),
+		result3 = PathTemplate.match(template, "/blog/2012/feb/1/posts"),
+		result4 = PathTemplate.match(template, "/blog/2012/feb/posts/2/photos");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
+	assert.equal(result4, undefined);
+};
+
+tc.testMatchWithSplatFail = function () {
+	var template = PathTemplate.parse("/*parts"),
+		result1 = PathTemplate.match(template, "");
+	
+	assert.equal(result1, undefined);
+};
+
+tc.testMatchFail = function () {
+	var template = PathTemplate.parse("/blog/*date/posts/:id"),
+		result1 = PathTemplate.match(template, "/blog/2012/jan/posts"),
+		result2 = PathTemplate.match(template, "/blog/2012/jan/posts/1/photos"),
+		result3 = PathTemplate.match(template, "/blog/2012/jan/comments/1"),
+		result4 = PathTemplate.match(template, "/blog/posts/");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
+	assert.equal(result4, undefined);
+};
+
+tc.testMatchWithExtensionsFail = function () {
+	var template = PathTemplate.parse("/*parts.:ext"),
+		result1 = PathTemplate.match(template, "/"),
+		result2 = PathTemplate.match(template, "/foo"),
+		result3 = PathTemplate.match(template, ".txt"),
+		result4 = PathTemplate.match(template, "/foo/txt");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
+	assert.equal(result4, undefined);
+};
+
+tc.testMatchZeroWidthSplatFail = function () {
+	var template = PathTemplate.parse("/foo/*bar/baz"),
+		result1 = PathTemplate.match(template, "/foo"),
+		result2 = PathTemplate.match(template, "/foo/bar"),
+		result3 = PathTemplate.match(template, "/foo/bar/qux"),
+		result4 = PathTemplate.match(template, "/foo/bar/baz/qux");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
+	assert.equal(result4, undefined);
+};
+
+tc.testMatchWithOptionalFail = function () {
+	var template = PathTemplate.parse("/foo(/bar)/baz"),
+		result1 = PathTemplate.match(template, "/foo"),
+		result2 = PathTemplate.match(template, "/foo/bar"),
+		result3 = PathTemplate.match(template, "/foo/baz/bar"),
+		result4 = PathTemplate.match(template, "/foo/bar/baz/qux");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
+	assert.equal(result4, undefined);
+};
+
+tc.testMatchWithSplatFollowedByVariableFail = function () {
+	var template = PathTemplate.parse("/blog/*date/:id/post"),
+		result1 = PathTemplate.match(template, "/blog/post");
+	
+	assert.equal(result1, undefined);
+};
+
+tc.testMatchWithTrailingOptionalFail = function () {
+	var template = PathTemplate.parse("/foo(/bar)"),
+		result1 = PathTemplate.match(template, "/foo/baz")
+		result2 = PathTemplate.match(template, "/bar");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+};
 
 // TODO test match on multiple templates
 
