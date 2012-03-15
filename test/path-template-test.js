@@ -330,6 +330,28 @@ tc.testMatchWithOptionalExtension = function () {
 	assert.deepEqual(result2, {"file": "robot", "ext": "jpg"});
 };
 
+tc.testSplatWithOptionalExtension = function () {
+	var template = PathTemplate.parse("/*parts(.:ext)"),
+		result1 = PathTemplate.match(template, "/foo/bar"),
+		result2 = PathTemplate.match(template, "/foo/bar.txt");
+	
+	assert.deepEqual(result1, {parts: ["foo", "bar"]});	
+	assert.deepEqual(result2, {parts: ["foo", "bar"], ext: "txt"});
+};
+
+tc.testTrailingOptionalThenSplat = function () {
+	var template = PathTemplate.parse("/foo(/:bar)*baz"),
+		result1 = PathTemplate.match(template, "/foo/bar/baz"),
+		result2 = PathTemplate.match(template, "/foo/bar/baz/qux"),
+		result3 = PathTemplate.match(template, "/foo/bar"),
+		result4 = PathTemplate.match(template, "/foo");
+	
+	assert.deepEqual(result1, {bar: "bar", baz: ["baz"]});
+	assert.deepEqual(result2, {bar: "bar", baz: ["baz", "qux"]});
+	assert.deepEqual(result3, {bar: "bar", baz: []});
+	assert.deepEqual(result4, {baz: []});
+};
+
 // TODO test match failure
 
 // TODO test match on multiple templates
