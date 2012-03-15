@@ -117,7 +117,7 @@ tc.testParseWithMultipleOptional = function () {
 		["variable", "name"],
 		["option", 2],
 		["string", "."],
-		["variable", "ext"],
+		["variable", "ext"]
 	]);
 };
 
@@ -167,14 +167,14 @@ tc.testInspectWithOptional = function () {
 	var template = PathTemplate.parse("/foo(/bar)/baz"),
 		result = PathTemplate.inspect(template);
 	
-	assert.equal(result, "/foo(/bar)/baz")
+	assert.equal(result, "/foo(/bar)/baz");
 };
 
 tc.testInspectWithTrailingOptional = function () {
 	var template = PathTemplate.parse("/foo(/bar)"),
 		result = PathTemplate.inspect(template);
 	
-	assert.equal(result, "/foo(/bar)")
+	assert.equal(result, "/foo(/bar)");
 };
 
 tc.testVariables = function () {
@@ -239,14 +239,14 @@ tc.testFormatWithOptional = function () {
 	var template = PathTemplate.parse("/foo(/bar)/baz"),
 		result = PathTemplate.format(template, {});
 	
-	assert.equal(result, "/foo/bar/baz")
+	assert.equal(result, "/foo/bar/baz");
 };
 
 tc.testFormatWithUnsatisfiedOptional = function () {
 	var template = PathTemplate.parse("/files(/blog/:date)/:name(.:ext)"),
 		result = PathTemplate.format(template, {name: "photo"});
 	
-	assert.equal(result, "/files/photo")
+	assert.equal(result, "/files/photo");
 };
 
 tc.testSimpleMatch = function () {
