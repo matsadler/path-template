@@ -121,6 +121,23 @@ tc.testParseWithMultipleOptional = function () {
 	]);
 };
 
+tc.testParseWithNestedOptional = function () {
+	var template = PathTemplate.parse("/files(/blog(/:date))/:name");
+	
+	assert.deepEqual(template, [
+		["string", "/"],
+		["string", "files"],
+		["option", 5],
+		["string", "/"],
+		["string", "blog"],
+		["option", 2],
+		["string", "/"],
+		["variable", "date"],
+		["string", "/"],
+		["variable", "name"]
+	]);
+};
+
 tc.testSimpleInspect = function () {
 	var template = PathTemplate.parse("/user/photos/default"),
 		result = PathTemplate.inspect(template);
@@ -175,6 +192,20 @@ tc.testInspectWithTrailingOptional = function () {
 		result = PathTemplate.inspect(template);
 	
 	assert.equal(result, "/foo(/bar)");
+};
+
+tc.testInspectWithNestedOptional = function () {
+	var template = PathTemplate.parse("/files(/blog(/:date)/:name)"),
+		result = PathTemplate.inspect(template);
+	
+	assert.equal(result, "/files(/blog(/:date)/:name)");
+};
+
+tc.testInspectWithNestedTrailingOptional = function () {
+	var template = PathTemplate.parse("/files(/blog(/:date))/:name"),
+		result = PathTemplate.inspect(template);
+	
+	assert.equal(result, "/files(/blog(/:date))/:name");
 };
 
 tc.testVariables = function () {
@@ -242,11 +273,39 @@ tc.testFormatWithOptional = function () {
 	assert.equal(result, "/foo/bar/baz");
 };
 
+tc.testFormatWithNestedOptional = function () {
+	var template = PathTemplate.parse("/foo(/bar(/baz))/qux"),
+		result = PathTemplate.format(template, {});
+	
+	assert.equal(result, "/foo/bar/baz/qux");
+};
+
+tc.testFormatWithNestedTrailingOptional = function () {
+	var template = PathTemplate.parse("/foo(/bar(/baz)/qux)/quux"),
+		result = PathTemplate.format(template, {});
+	
+	assert.equal(result, "/foo/bar/baz/qux/quux");
+};
+
 tc.testFormatWithUnsatisfiedOptional = function () {
 	var template = PathTemplate.parse("/files(/blog/:date)/:name(.:ext)"),
 		result = PathTemplate.format(template, {name: "photo"});
 	
 	assert.equal(result, "/files/photo");
+};
+
+tc.testFormatWithUnsatisfiedAndNestedOptional = function () {
+	var template = PathTemplate.parse("/files(/blog/:year(/posts/:id))/:name"),
+		result = PathTemplate.format(template, {name: "photo", id: 42});
+	
+	assert.equal(result, "/files/photo");
+};
+
+tc.testFormatWithNestedUnsatisfiedOptional = function () {
+	var template = PathTemplate.parse("/files(/blog/:year(/posts/:id))/:name"),
+		result = PathTemplate.format(template, {name: "photo", year: 2012});
+	
+	assert.equal(result, "/files/blog/2012/photo");
 };
 
 tc.testSimpleMatch = function () {
@@ -352,6 +411,17 @@ tc.testTrailingOptionalThenSplat = function () {
 	assert.deepEqual(result4, {baz: []});
 };
 
+tc.testNestedOptional = function () {
+	var template = PathTemplate.parse("/foo(/bar(/baz))/qux"),
+		result1 = PathTemplate.match(template, "/foo/qux"),
+		result2 = PathTemplate.match(template, "/foo/bar/qux"),
+		result3 = PathTemplate.match(template, "/foo/bar/baz/qux");
+	
+	assert.deepEqual(result1, {});
+	assert.deepEqual(result2, {});
+	assert.deepEqual(result3, {});
+};
+
 tc.testSimpleMatachFail = function () {
 	var template = PathTemplate.parse("/user/photos/default"),
 		result1 = PathTemplate.match(template, "/"),
@@ -446,11 +516,22 @@ tc.testMatchWithSplatFollowedByVariableFail = function () {
 
 tc.testMatchWithTrailingOptionalFail = function () {
 	var template = PathTemplate.parse("/foo(/bar)"),
-		result1 = PathTemplate.match(template, "/foo/baz")
+		result1 = PathTemplate.match(template, "/foo/baz"),
 		result2 = PathTemplate.match(template, "/bar");
 	
 	assert.equal(result1, undefined);
 	assert.equal(result2, undefined);
+};
+
+tc.testNestedOptionalFail = function () {
+	var template = PathTemplate.parse("/foo(/bar(/baz))/qux"),
+		result1 = PathTemplate.match(template, "/foo/bar"),
+		result2 = PathTemplate.match(template, "/foo/baz/qux"),
+		result3 = PathTemplate.match(template, "/foo/baz/bar/qux");
+	
+	assert.equal(result1, undefined);
+	assert.equal(result2, undefined);
+	assert.equal(result3, undefined);
 };
 
 // TODO test match on multiple templates
