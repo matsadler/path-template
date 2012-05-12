@@ -534,7 +534,62 @@ tc.testNestedOptionalFail = function () {
 	assert.equal(result3, undefined);
 };
 
-// TODO test match on multiple templates
+tc.testSimpleMultiMatch = function () {
+	var template1 = PathTemplate.parse("/user/photos/default"),
+		template2 = PathTemplate.parse("/default/image"),
+		templates = [template1, template2],
+		result1 = PathTemplate.match(templates, "/user/photos/default"),
+		result2 = PathTemplate.match(templates, "/default/image");
+	
+	assert.deepEqual(result1, {});
+	assert.deepEqual(result1.template, template1);
+	assert.deepEqual(result2, {});
+	assert.deepEqual(result2.template, template2);
+};
+
+tc.testMultiMatchWithVariables = function () {
+	var template1 = PathTemplate.parse("/blog/:year/:month/posts/:id"),
+		template2 = PathTemplate.parse("/:controller/:action/:id"),
+		templates = [template1, template2],
+		result1 = PathTemplate.match(templates, "/blog/2012/jan/posts/1"),
+		result2 = PathTemplate.match(templates, "/admin/edit/2");
+	
+	assert.deepEqual(result1, {year: "2012", month: "jan", id: "1"});
+	assert.deepEqual(result1.template, template1);
+	assert.deepEqual(result2, {controller: "admin", action: "edit", id: "2"});
+	assert.deepEqual(result2.template, template2);
+};
+
+tc.testMultiMatchWithSplatLast = function () {
+	var template1 = PathTemplate.parse("/foo/bar"),
+		template2 = PathTemplate.parse("/*parts"),
+		templates = [template1, template2],
+		result1 = PathTemplate.match(templates, "/foo/bar"),
+		result2 = PathTemplate.match(templates, "/foo/bar/baz"),
+		result3 = PathTemplate.match(templates, "/foo"),
+		result4 = PathTemplate.match(templates, "/blog/2012/jan/posts/1");
+	
+	assert.deepEqual(result1, {});
+	assert.deepEqual(result1.template, template1);
+	assert.deepEqual(result2, {parts: ["foo", "bar", "baz"]});
+	assert.deepEqual(result2.template, template2);
+	assert.deepEqual(result3, {parts: ["foo"]});
+	assert.deepEqual(result3.template, template2);
+	assert.deepEqual(result4, {parts: ["blog", "2012", "jan", "posts", "1"]});
+	assert.deepEqual(result4.template, template2);
+};
+
+tc.testMultiMatchWithSplatFirst = function () {
+	var template1 = PathTemplate.parse("/*parts"),
+		template2 = PathTemplate.parse("/foo/bar"),
+		templates = [template1, template2],
+		result = PathTemplate.match(templates, "/foo/bar");
+	
+	assert.deepEqual(result, {parts: ["foo", "bar"]});
+	assert.deepEqual(result.template, template1);
+};
+
+// TODO more tests for match on multiple templates
 
 tc.testAddString = function () {
 	var template = PathTemplate.parse("/foo"),
