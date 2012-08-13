@@ -329,6 +329,20 @@ tc.testMatchWithSplat = function () {
 	assert.deepEqual(result, {parts: ["foo", "1", "bar", "2"]});
 };
 
+tc.testMatchWithUnamedSplat = function () {
+	var template = PathTemplate.parse("/foo/*/bar"),
+		result = PathTemplate.match(template, "/foo/1/2/bar");
+	
+	assert.deepEqual(result, {});
+};
+
+tc.testMatchWithUnamedTrailingSplat = function () {
+	var template = PathTemplate.parse("/foo/*"),
+		result = PathTemplate.match(template, "/foo/1/bar/2");
+	
+	assert.deepEqual(result, {});
+};
+
 tc.testMatch = function () {
 	var template = PathTemplate.parse("/blog/*date/posts/:id"),
 		result = PathTemplate.match(template, "/blog/2012/jan/posts/1");
